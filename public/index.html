@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secret Hitler LAN</title>
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Roboto+Condensed:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --accent: #d9534f;
+            --accent-dark: #c9302c;
+            --bg-dark: #1b1b1b;
+            --bg-box: rgba(30, 30, 30, 0.9);
+            --text-light: #f0e6d2;
+            --transition: 0.2s ease;
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto Condensed', sans-serif;
+            background:
+                linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 20, 0.85)),
+                url('https://images.unsplash.com/photo-1519821172141-b723cf961d3e?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 2.75rem;
+            text-align: center;
+            color: var(--accent);
+            text-shadow: 2px 2px 8px #000;
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            background: var(--bg-box);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: transform var(--transition), border-color var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-dark);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: border-color var(--transition);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            background: transparent;
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+
+        ul li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+
+        .eye-icon {
+            align-self: flex-end;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: color var(--transition);
+        }
+
+        .eye-icon:hover {
+            color: var(--accent-dark);
+        }
+
+        .section-hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .card {
+                padding: 0.75rem;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 0.9rem;
+                padding: 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Secret Hitler</h1>
+
+        <div class="card" id="setup">
+            <label for="nameInput">Your codename</label>
+            <input id="nameInput" placeholder="Enter your codename" />
+            <button id="joinBtn"><i class="fas fa-sign-in-alt"></i> Join</button>
+        </div>
+
+        <div class="card section-hidden" id="myName">
+            <strong>Your codename:</strong>
+            <span id="myNameText"></span>
+        </div>
+
+        <div class="card section-hidden" id="players">
+            <h2>Players online</h2>
+            <ul id="playerList"></ul>
+            <button id="startGameBtn"><i class="fas fa-play"></i> Start game</button>
+        </div>
+
+        <div class="card section-hidden" id="role">
+            <h2>Your mission</h2>
+            <i class="fas fa-eye eye-icon" id="toggleRole" title="Reveal or hide your role"></i>
+            <p id="roleText" class="section-hidden"></p>
+        </div>
+
+        <div class="card section-hidden" id="fascistInfo">
+            <p><strong>Hitler:</strong> <span id="hitlerName"></span></p>
+            <p><strong>Other fascists:</strong></p>
+            <ul id="fascistList"></ul>
+        </div>
+
+        <div class="card section-hidden" id="roundInfo">
+            <p id="presidentText"></p>
+            <div id="chancellorSelect" class="section-hidden">
+                <label for="chancellorDropdown">Nominate chancellor</label>
+                <select id="chancellorDropdown"></select>
+                <button id="confirmChancellor"><i class="fas fa-check"></i> Confirm</button>
+            </div>
+            <p id="chancellorText"></p>
+        </div>
+
+        <div class="card section-hidden" id="revealSection">
+            <label for="revealDropdown">Inspect agent</label>
+            <select id="revealDropdown"></select>
+            <button onclick="revealParty()"><i class="fas fa-search"></i> Inspect</button>
+        </div>
+
+        <div class="card section-hidden" id="revealApprovalPrompt">
+            <p id="revealRequestText"></p>
+            <div style="display:flex; gap:0.5rem;">
+                <button onclick="respondToReveal(true)"><i class="fas fa-thumbs-up"></i> Approve</button>
+                <button onclick="respondToReveal(false)"><i class="fas fa-thumbs-down"></i> Reject</button>
+            </div>
+        </div>
+
+        <div class="card section-hidden" id="revealResult">
+            <p id="revealText"></p>
+        </div>
+
+        <div class="card section-hidden" id="voting">
+            <button onclick="vote('ja')"><i class="fas fa-hand-paper"></i> Ja</button>
+            <button onclick="vote('nein')"><i class="fas fa-ban"></i> Nein</button>
+        </div>
+
+        <div class="card section-hidden" id="voteResult">
+            <p id="resultText"></p>
+        </div>
+
+        <div class="card section-hidden" id="nextPresidentSelect">
+            <label for="nextPresidentDropdown">Next President</label>
+            <select id="nextPresidentDropdown"></select>
+        </div>
+
+        <div style="text-align:center">
+            <button id="nextRoundBtn" class="section-hidden"><i class="fas fa-step-forward"></i> Next round</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let myId, players = [], currentPresidentId, revealRequesterId, roleVisible = false, roleTimeout;
+
+        socket.on('connect', () => myId = socket.id);
+
+        document.getElementById('joinBtn').onclick = () => {
+            const name = document.getElementById('nameInput').value.trim();
+            if (name) socket.emit('joinGame', name);
+        };
+        document.getElementById('startGameBtn').onclick = () => socket.emit('startGame');
+
+        socket.on('playerList', list => {
+            players = list;
+            document.getElementById('setup').classList.add('section-hidden');
+            document.getElementById('players').classList.remove('section-hidden');
+            document.getElementById('playerList').innerHTML = list.map(p => `<li>${p.name}</li>`).join('');
+        });
+
+        socket.on('yourName', name => {
+            document.getElementById('myNameText').textContent = name;
+            document.getElementById('myName').classList.remove('section-hidden');
+        });
+
+        socket.on('yourRole', player => {
+            document.getElementById('players').classList.add('section-hidden');
+            document.getElementById('roleText').textContent = player.role;
+            document.getElementById('role').classList.remove('section-hidden');
+        });
+
+        const roleText = document.getElementById('roleText');
+        const fascistPanel = document.getElementById('fascistInfo');
+
+        document.getElementById('toggleRole').onclick = () => {
+            roleVisible = !roleVisible;
+
+            if (roleVisible) {
+                // show both role and fascist info (if it’s been populated)
+                roleText.classList.remove('section-hidden');
+                fascistPanel.classList.remove('section-hidden');
+
+                // auto-hide after 5s
+                roleTimeout = setTimeout(() => {
+                    roleText.classList.add('section-hidden');
+                    fascistPanel.classList.add('section-hidden');
+                    roleVisible = false;
+                }, 5000);
+            } else {
+                // manual hide
+                clearTimeout(roleTimeout);
+                roleText.classList.add('section-hidden');
+                fascistPanel.classList.add('section-hidden');
+            }
+        };
+
+        socket.on('selectChancellor', ({ presidentId, presidentName }) => {
+            currentPresidentId = presidentId;
+            document.getElementById('roundInfo').classList.remove('section-hidden');
+            document.getElementById('presidentText').textContent = `President: ${presidentName}`;
+            if (myId === presidentId) {
+                document.getElementById('chancellorSelect').classList.remove('section-hidden');
+                socket.emit('getPlayers');
+            } else {
+                document.getElementById('chancellorSelect').classList.add('section-hidden');
+            }
+        });
+
+        socket.on('fascistInfo', ({ hitler, fascists }) => {
+            document.getElementById('fascistInfo').style.display = 'block';
+            document.getElementById('hitlerName').textContent = hitler.name;
+
+            const list = document.getElementById('fascistList');
+            list.innerHTML = fascists.length
+                ? fascists.map(f => `<li>${f.name}</li>`).join('')
+                : '<li>(You are the only fascist)</li>';
+        });
+
+        socket.on('playersListForChancellor', list => {
+            players = list;
+            const dropdown = document.getElementById('chancellorDropdown');
+            const revealDd = document.getElementById('revealDropdown');
+            dropdown.innerHTML = '';
+            revealDd.innerHTML = '';
+
+            // figure out where the current president sits in the list
+            const presIndex = list.findIndex(p => p.id === currentPresidentId);
+            const leftIndex = (presIndex - 1 + list.length) % list.length;
+            const rightIndex = (presIndex + 1) % list.length;
+
+            list.forEach((p, index) => {
+                // everyone except you can be inspected
+                if (p.id !== myId) {
+                    revealDd.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                }
+                // chancellor candidates: not you, not immediate neighbors
+                if (p.id !== myId && index !== leftIndex && index !== rightIndex) {
+                    dropdown.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                }
+            });
+
+            // only the president sees the inspect section
+            document
+                .getElementById('revealSection')
+                .classList.toggle('section-hidden', myId !== currentPresidentId);
+        });
+
+        document.getElementById('confirmChancellor').onclick = () => {
+            socket.emit('setChancellor', document.getElementById('chancellorDropdown').value);
+        };
+
+        socket.on('chancellorSelected', ({ chancellorName }) => {
+            document.getElementById('chancellorText').textContent = `Chancellor: ${chancellorName}`;
+        });
+
+        socket.on('startVoting', () => {
+            document.getElementById('voting').classList.remove('section-hidden');
+            document.getElementById('voteResult').classList.add('section-hidden');
+        });
+
+        function vote(opt) {
+            socket.emit('castVote', opt);
+            document.getElementById('voting').classList.add('section-hidden');
+        }
+
+        socket.on('voteResults', ({ ja, nein }) => {
+            document.getElementById('voteResult').classList.remove('section-hidden');
+            document.getElementById('resultText').textContent = `Ja: ${ja} | Nein: ${nein}`;
+        });
+
+        function revealParty() {
+            socket.emit('revealParty', document.getElementById('revealDropdown').value);
+        }
+
+        socket.on('requestRevealApproval', ({ fromId, fromName }) => {
+            revealRequesterId = fromId;
+            document.getElementById('revealRequestText').textContent = `${fromName} requests intel. Allow?`;
+            document.getElementById('revealApprovalPrompt').classList.remove('section-hidden');
+        });
+
+        window.respondToReveal = approved => {
+            socket.emit('revealApprovalResponse', { approved, fromId: revealRequesterId });
+            document.getElementById('revealApprovalPrompt').classList.add('section-hidden');
+        };
+
+        socket.on('revealPartyResult', ({ targetName, party }) => {
+            const el = document.getElementById('revealResult');
+            document.getElementById('revealText').textContent = `${targetName} is ${party}`;
+            el.classList.remove('section-hidden');
+            setTimeout(() => el.classList.add('section-hidden'), 5000);
+        });
+
+        socket.on('revealPartyRejected', ({ targetName }) => {
+            const el = document.getElementById('revealResult');
+            document.getElementById('revealText').textContent = `${targetName} denied intel.`;
+            el.classList.remove('section-hidden');
+            setTimeout(() => el.classList.add('section-hidden'), 4000);
+        });
+
+        socket.on('showNextRoundBtn', () => {
+            if (myId === currentPresidentId) {
+                document.getElementById('nextPresidentSelect').classList.remove('section-hidden');
+                document.getElementById('nextRoundBtn').classList.remove('section-hidden');
+                const dd = document.getElementById('nextPresidentDropdown');
+                dd.innerHTML = players.filter(p => p.id !== myId).map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            }
+        });
+
+        document.getElementById('nextRoundBtn').onclick = () => {
+            const nextId = document.getElementById('nextPresidentDropdown').value;
+            socket.emit('requestNextRound', { nextPresidentId: nextId });
+            document.getElementById('nextRoundBtn').classList.add('section-hidden');
+            document.getElementById('voteResult').classList.add('section-hidden');
+            document.getElementById('roundInfo').classList.add('section-hidden');
+            document.getElementById('nextPresidentSelect').classList.add('section-hidden');
+        };
+
+        socket.on('joinError', msg => alert(msg));
+        socket.on('startError', msg => alert(msg));
+    </script>
+</body>
+
+</html>
